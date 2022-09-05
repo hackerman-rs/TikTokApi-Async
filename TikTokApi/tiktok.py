@@ -259,12 +259,6 @@ class TikTokApi:
         full_url = f"https://{subdomain}.tiktok.com/" + path
 
         if self._signer_url is None:
-            print("VVVVVV:" + str(await asyncio.gather(
-                    self._browser.sign_url(
-                        full_url, calc_tt_params=send_tt_params, **kwargs
-                    )
-                )))
-
             kwargs["custom_verify_fp"] = verifyFp
             (
                 verify_fp,

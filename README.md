@@ -11,7 +11,7 @@ non-async behavior async.
 support is not provided, but if you find a bug, make an issue, and let me know
 at tiktokapi-async@viomck.com, you might just find it fixed.
 
-the original README is below, s/TikTokApi/TikTokApi-Async for installation.
+the original README is below, s/TikTokApi/TikTokApi-Async for the package name.
 
 # Unofficial TikTok API in Python
 
