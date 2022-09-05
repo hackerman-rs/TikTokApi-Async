@@ -1,8 +1,11 @@
+# discontinued
+that was shortlived
+
 # TikTokApi-Async
 
 this is a [hackerman](https://hackerman.rs) async fork of
-[TikTok-Api](https://github.com/davidteather/TikTok-Api) used in one of our
-sites, [fftiktok.com](https://fftiktok.com).
+[TikTok-Api](https://github.com/davidteather/TikTok-Api) ~~used in one of our
+sites, [fftiktok.com](https://fftiktok.com).~~
 
 this fork is only for compatibility with async environments such as
 [quart](https://github.com/pallets/quart). it is not intended to make
