@@ -6,17 +6,16 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="TikTokApi",
+    name="TikTokApi-Async",
     packages=setuptools.find_packages(),
     version="5.2.2",
     license="MIT",
-    description="The Unofficial TikTok API Wrapper in Python 3.",
-    author="David Teather",
-    author_email="contact.davidteather@gmail.com",
-    url="https://github.com/davidteather/tiktok-api",
+    description="The Unofficial TikTok API Wrapper in Python 3. (async)",
+    author="Violet McKinney",
+    author_email="tiktokapi-async@viomck.com",
+    url="https://github.com/hackerman-rs/tiktokapi-async",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    download_url="https://github.com/davidteather/TikTok-Api/tarball/master",
     keywords=["tiktok", "python3", "api", "unofficial", "tiktok-api", "tiktok api"],
     install_requires=["requests", "playwright"],
     classifiers=[

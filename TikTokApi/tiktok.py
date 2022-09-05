@@ -83,18 +83,21 @@ class TikTokApi:
     comment = Comment
     logger = logging.getLogger(LOGGER_NAME)
 
-    def __init__(
-            self,
-            logging_level: int = logging.WARNING,
-            request_delay: Optional[int] = None,
-            custom_device_id: Optional[str] = None,
-            generate_static_device_id: Optional[bool] = False,
-            custom_verify_fp: Optional[str] = None,
-            use_test_endpoints: Optional[bool] = False,
-            proxy: Optional[str] = None,
-            executable_path: Optional[str] = None,
-            *args,
-            **kwargs,
+    def __init__(self, logging_level: int = logging.WARNING):
+        self.logger.setLevel(logging_level)
+
+    @classmethod
+    async def create(
+        logging_level: int = logging.WARNING,
+        request_delay: Optional[int] = None,
+        custom_device_id: Optional[str] = None,
+        generate_static_device_id: Optional[bool] = False,
+        custom_verify_fp: Optional[str] = None,
+        use_test_endpoints: Optional[bool] = False,
+        proxy: Optional[str] = None,
+        executable_path: Optional[str] = None,
+        *args,
+        **kwargs,
     ):
         """The TikTokApi class. Used to interact with TikTok. This is a singleton
             class to prevent issues from arising with playwright
@@ -153,10 +156,10 @@ class TikTokApi:
             in other places.
         """
 
-        self.logger.setLevel(logging_level)
+        api = TikTokApi()  # TODO(viomckinney): logging_level not working
 
         with _thread_lock:
-            self._initialize(
+            await api._initialize(
                 request_delay=request_delay,
                 custom_device_id=custom_device_id,
                 generate_static_device_id=generate_static_device_id,
@@ -168,7 +171,9 @@ class TikTokApi:
                 **kwargs,
             )
 
-    def _initialize(self, **kwargs):
+        return api
+
+    async def _initialize(self, **kwargs):
         # Add classes from the api folder
         User.parent = self
         Search.parent = self
@@ -202,10 +207,7 @@ class TikTokApi:
             )
 
         if self._signer_url is None:
-            self._browser = asyncio.get_event_loop().run_until_complete(
-                asyncio.gather(browser.create(**kwargs))
-            )[0]
-
+            self._browser = (await asyncio.gather(browser.create(**kwargs)))[0]
             self._user_agent = self._browser.user_agent
 
         try:
@@ -229,7 +231,7 @@ class TikTokApi:
             self._language = "en"
             raise e from e
 
-    def get_data(self, path, subdomain="m", **kwargs) -> dict:
+    async def get_data(self, path, subdomain="m", **kwargs) -> dict:
         """Makes requests to TikTok and returns their JSON.
 
         This is all handled by the package so it's unlikely
@@ -257,14 +259,20 @@ class TikTokApi:
         full_url = f"https://{subdomain}.tiktok.com/" + path
 
         if self._signer_url is None:
+            print("VVVVVV:" + str(await asyncio.gather(
+                    self._browser.sign_url(
+                        full_url, calc_tt_params=send_tt_params, **kwargs
+                    )
+                )))
+
             kwargs["custom_verify_fp"] = verifyFp
             (
                 verify_fp,
                 device_id,
                 signature,
                 tt_params,
-            ) = asyncio.get_event_loop().run_until_complete(
-                asyncio.gather(
+            ) = (
+                await asyncio.gather(
                     self._browser.sign_url(
                         full_url, calc_tt_params=send_tt_params, **kwargs
                     )
@@ -418,7 +426,8 @@ class TikTokApi:
             self.logger.debug(
                 "TikTokAPI was shutdown improperlly. Ensure the instance is terminated with .shutdown()"
             )
-            self.shutdown()
+            # TODO(viomckinney): lol
+            # self.shutdown()
         return
 
     def external_signer(self, url, custom_device_id=None, verifyFp=None):
@@ -498,7 +507,7 @@ class TikTokApi:
                 "ttwid": kwargs.get("ttwid"),
             }
 
-    def get_bytes(self, **kwargs) -> bytes:
+    async def get_bytes(self, **kwargs) -> bytes:
         """Returns TikTok's response as bytes, similar to get_data"""
         processed = self._process_kwargs(kwargs)
         kwargs["custom_device_id"] = processed.device_id
@@ -508,9 +517,10 @@ class TikTokApi:
                 device_id,
                 signature,
                 _,
-            ) = asyncio.get_event_loop().run_until_complete(
-                asyncio.gather(self._browser.sign_url(calc_tt_params=False, **kwargs))
-            )[
+            ) = (
+                await asyncio.gather(self._browser.sign_url(calc_tt_params=False, **kwargs))
+            )
+            [
                 0
             ]
             user_agent = self._browser.user_agent
@@ -629,10 +639,10 @@ class TikTokApi:
 
         return urlencode(query)
 
-    def shutdown(self) -> None:
+    async def shutdown(self) -> None:
         with _thread_lock:
             self.logger.debug("Shutting down Playwright")
-            asyncio.get_event_loop().run_until_complete(self._browser._clean_up())
+            await self._browser._clean_up()
 
     def __enter__(self):
         with _thread_lock:
@@ -640,4 +650,6 @@ class TikTokApi:
             return self
 
     def __exit__(self, type, value, traceback):
-        self.shutdown()
+        # TODO(viomckinney): lol
+        # self.shutdown()
+        pass

@@ -131,7 +131,7 @@ class User:
 
         return res["userInfo"]"""
 
-    def videos(self, count=30, cursor=0, **kwargs) -> Iterator[Video]:
+    async def videos(self, count=30, cursor=0, **kwargs) -> Iterator[Video]:
         """
         Returns an iterator yielding Video objects.
 
@@ -172,7 +172,7 @@ class User:
                 User.parent._add_url_params(), urlencode(query)
             )
 
-            res = User.parent.get_data(path, send_tt_params=True, **kwargs)
+            res = await User.parent.get_data(path, send_tt_params=True, **kwargs)
 
             videos = res.get("itemList", [])
             for video in videos:
@@ -188,7 +188,7 @@ class User:
             cursor = res["cursor"]
             first = False
 
-    def liked(self, count: int = 30, cursor: int = 0, **kwargs) -> Iterator[Video]:
+    async def liked(self, count: int = 30, cursor: int = 0, **kwargs) -> Iterator[Video]:
         """
         Returns a dictionary listing TikToks that a given a user has liked.
 
@@ -230,7 +230,7 @@ class User:
                 User.parent._add_url_params(), urlencode(query)
             )
 
-            res = self.parent.get_data(path, **kwargs)
+            res = await self.parent.get_data(path, **kwargs)
 
             if "itemList" not in res.keys():
                 if first:
